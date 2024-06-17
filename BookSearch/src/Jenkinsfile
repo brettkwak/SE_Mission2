@@ -1,0 +1,44 @@
+pipeline {
+	agent any
+	stages {
+		stage('Checkout') {
+			steps {
+				// 소스코드 체크아웃
+				checkout scm
+			}
+		}
+		stage('Build') {
+			steps {
+				// Java 파일들을 컴파일하여 생성된 클래스 파일을 classes 디렉토리에 저장
+				// window 일 경우 bat
+				bat"""javac -cp "BookSearch/lib/junit-platform-console-standalone-1.7.1.jar" -encoding UTF-8 -d BookSearch/classes BookSearch/src/BookSearch.java BookSearch/src/BookSearchTest.java"""
+
+			}
+		}
+		stage('Test') {
+			steps {
+				script {
+					// JUnit Test 실행
+					// 결과 tests_results.txt에 저장
+					def command = """cd BookSearch/classes
+                    			java -jar ../lib/junit-platform-console-standalone-1.7.1.jar -cp "." --select-class BookSearchTest > ../test_results.txt"""
+                    echo "Running command: ${command}"
+					bat command
+					
+			    	}
+			}
+		}
+	}
+	post {
+		always {
+			// 테스트 결과 파일을 저장하기 위해 아카이브
+			archiveArtifacts 'BookSearch/test_results.txt'
+		}
+		failure {
+			echo "Build or test failed"
+		}
+		success {
+			echo "Build and test succeeded"
+		}
+	}
+}
