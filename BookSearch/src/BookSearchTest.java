@@ -72,4 +72,5 @@ public class BookSearchTest {
         int index = BookSearch.comparePerformance(books, 5);
         assertEquals(4, index, "4번 책 찾기 테스트");
         System.out.println("테스트 'testSearchTime' 성공");
+    }
 }
